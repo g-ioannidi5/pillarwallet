@@ -36,7 +36,7 @@ describe('Slide Modal', () => {
     const component = renderer.create(
       <Provider store={store}>
         <ThemeProvider theme={defaultTheme}>
-          <SlideModal title="title" isVisible />
+          <SlideModal title="title" />
         </ThemeProvider>
       </Provider>).toJSON();
     expect(component).toMatchSnapshot();
@@ -46,7 +46,7 @@ describe('Slide Modal', () => {
     const ChildContent = () => <BaseText>Test</BaseText>;
     const wrapper = shallow(
       <ThemeProvider theme={defaultTheme}>
-        <SlideModal title="title" isVisible>
+        <SlideModal title="title">
           <ChildContent />
         </SlideModal>
       </ThemeProvider>);
@@ -54,17 +54,17 @@ describe('Slide Modal', () => {
   });
 
   it('should close modal on dismiss', async () => {
-    const onModalHide = jest.fn();
+    const onModalWillHide = jest.fn();
     const component = renderer.create(
       <Provider store={store}>
         <ThemeProvider theme={defaultTheme}>
-          <SlideModal title="title" isVisible onModalHide={onModalHide} />
+          <SlideModal title="title" onModalWillHide={onModalWillHide} />
         </ThemeProvider>
       </Provider>);
     const instance = component.root;
     const button = instance.findByProps({ icon: 'close', fontSize: fontSizes.regular });
     button.props.onPress();
     await delay(400);
-    expect(onModalHide).toHaveBeenCalled();
+    expect(onModalWillHide).toHaveBeenCalled();
   });
 });
