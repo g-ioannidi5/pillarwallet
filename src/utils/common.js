@@ -56,6 +56,7 @@ import * as NAVSCREENS from 'constants/navigationConstants';
 import type { GasInfo } from 'models/GasInfo';
 import type { GasToken } from 'models/Transaction';
 import type { EnsRegistry } from 'reducers/ensRegistryReducer';
+import type { RootReducerState } from 'reducers/rootReducer';
 
 // local
 import { isProdEnv, isTest } from './environment';
