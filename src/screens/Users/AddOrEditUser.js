@@ -89,13 +89,6 @@ type Props = {
 type State = {
   focusedField: ?string,
   value: Object,
-  cautionModalField: ?string,
-};
-
-
-const VISIBLE_CAUTION_MODAL = {
-  PHONE: 'phone',
-  EMAIL: 'email',
 };
 
 const FIELD_NAME = {
@@ -338,7 +331,6 @@ class AddOrEditUser extends React.PureComponent<Props, State> {
     this.state = {
       value: getInitialValue(user),
       focusedField: null,
-      cautionModalField: null,
     };
   }
 
@@ -432,7 +424,7 @@ class AddOrEditUser extends React.PureComponent<Props, State> {
       this.setState({ focusedField: null });
       if (focusedField === FIELD_NAME.EMAIL && value.email !== user.email) {
         if (isEmailVerified) {
-          this.setState({ cautionModalField: VISIBLE_CAUTION_MODAL.EMAIL });
+          this.openCautionModal(FIELD_NAME.EMAIL);
         } else {
           updateUser(user.walletId, { email: value.email });
         }
@@ -441,7 +433,7 @@ class AddOrEditUser extends React.PureComponent<Props, State> {
         const formattedPhone = input ? `+${selector.callingCode}${input}` : null;
         if (formattedPhone !== user.phone) {
           if (isPhoneVerified) {
-            this.setState({ cautionModalField: VISIBLE_CAUTION_MODAL.PHONE });
+            this.openCautionModal(FIELD_NAME.PHONE);
           } else {
             updateUser(user.walletId, { phone: formattedPhone });
           }
@@ -497,25 +489,32 @@ class AddOrEditUser extends React.PureComponent<Props, State> {
     ));
   };
 
-  changeField = () => {
-    const { updateUser, user } = this.props;
-    const { cautionModalField, value } = this.state;
-    if (cautionModalField === VISIBLE_CAUTION_MODAL.PHONE) {
-      const { phone: { input, selector } } = value;
-      const formattedPhone = input ? `+${selector.callingCode}${input}` : null;
-      updateUser(user.walletId, { phone: formattedPhone });
-    } else if (cautionModalField === VISIBLE_CAUTION_MODAL.EMAIL) {
-      updateUser(user.walletId, { email: value.email });
-    }
-    this.setState({ cautionModalField: null });
-  };
+  openCautionModal = (field: string) => {
+    const { value } = this.state;
 
-  onDismissCautionModal = () => {
-    this.setState({
-      cautionModalField: null,
-      value: getInitialValue(this.props.user),
-    });
-  };
+    const changeField = () => {
+      const { updateUser, user } = this.props;
+      if (field === FIELD_NAME.PHONE) {
+        const { phone: { input, selector } } = value;
+        const formattedPhone = input ? `+${selector.callingCode}${input}` : null;
+        updateUser(user.walletId, { phone: formattedPhone });
+      } else if (field === FIELD_NAME.EMAIL) {
+        updateUser(user.walletId, { email: value.email });
+      }
+    };
+
+    Modal.open(() => (
+      <CautionModal
+        onAcceptChange={changeField}
+        onDismiss={this.resetFieldValues}
+        focusedField={field}
+      />
+    ));
+  }
+
+  resetFieldValues = () => {
+    this.setState({ value: getInitialValue(this.props.user) });
+  }
 
   renderInsight = () => {
     const {
@@ -567,7 +566,6 @@ class AddOrEditUser extends React.PureComponent<Props, State> {
     const {
       value,
       focusedField,
-      cautionModalField,
     } = this.state;
     const {
       user: { username = '' },
@@ -628,13 +626,6 @@ class AddOrEditUser extends React.PureComponent<Props, State> {
           {this.renderInsight()}
           <Spacing h={75} />
         </ScrollWrapper>
-
-        <CautionModal
-          isVisible={!!cautionModalField}
-          onModalHide={this.onDismissCautionModal}
-          onButtonPress={this.changeField}
-          focusedField={cautionModalField}
-        />
       </ContainerWithHeader>
     );
   }
