@@ -35,8 +35,9 @@ import { BaseText, MediumText, Paragraph } from 'components/Typography';
 import Button from 'components/Button';
 import ProfileImage from 'components/ProfileImage';
 import Checkbox from 'components/Checkbox';
-import HTMLContentModal from 'components/Modals/HTMLContentModal';
+import HTMLContentModal, { ENDPOINTS } from 'components/Modals/HTMLContentModal';
 import TextInput from 'components/TextInput';
+import Modal from 'components/Modal';
 
 // constants
 import { USERNAME_OK, CHECKING_USERNAME } from 'constants/walletConstants';
@@ -104,11 +105,6 @@ type Props = {
   usernameCheckErrorMessage: ?string,
 };
 
-const MODAL = {
-  TERMS_OF_USE: 'TERMS_OF_USE',
-  PRIVACY_POLICY: 'PRIVACY_POLICY',
-};
-
 const getEnsPrefix = () => isProdEnv ? '.pillar.eth' : '.pillar.kovan'; // eslint-disable-line i18next/no-literal-string
 
 const NewProfile = ({
@@ -125,7 +121,6 @@ const NewProfile = ({
   const [usernameValue, setUsernameValue] = useState(null);
   const [hasAgreedToTerms, setHasAgreedToTerms] = useState(false);
   const [hasAgreedToPolicy, setHasAgreedToPolicy] = useState(false);
-  const [visibleModal, setVisibleModal] = useState(null);
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
 
   const isUsernameInputDirty = usernameValue !== null;
@@ -244,6 +239,10 @@ const NewProfile = ({
     ? { default: true, floating: true, transparent: true }
     : { centerItems: [{ title: t('auth:title.chooseUsername') }] };
 
+  const openLegalModal = (endpoint: string) => Modal.open(() => (
+    <HTMLContentModal htmlEndpoint={endpoint} />
+  ));
+
   return (
     <ContainerWithHeader
       noBack={!!retry}
@@ -264,7 +263,7 @@ const NewProfile = ({
               <CheckboxText>
                 {t('auth:withLink.readUnderstandAgreeTo', {
                   linkedText: t('auth:termsOfUse'),
-                  onPress: () => setVisibleModal(MODAL.TERMS_OF_USE),
+                  onPress: () => openLegalModal(ENDPOINTS.TERMS_OF_SERVICE),
                 })}
               </CheckboxText>
             </Checkbox>
@@ -277,7 +276,7 @@ const NewProfile = ({
               <CheckboxText>
                 {t('auth:withLink.readUnderstandAgreeTo', {
                   linkedText: t('auth:privacyPolicy'),
-                  onPress: () => setVisibleModal(MODAL.PRIVACY_POLICY),
+                  onPress: () => openLegalModal(ENDPOINTS.PRIVACY_POLICY),
                 })}
               </CheckboxText>
             </Checkbox>
@@ -295,16 +294,6 @@ const NewProfile = ({
         {!existingUser && renderChooseUsername()}
         {existingUser && renderWelcomeBack()}
       </ContentWrapper>
-      <HTMLContentModal
-        isVisible={visibleModal === MODAL.TERMS_OF_USE}
-        modalHide={() => setVisibleModal(null)}
-        htmlEndpoint="terms_of_service"
-      />
-      <HTMLContentModal
-        isVisible={visibleModal === MODAL.PRIVACY_POLICY}
-        modalHide={() => setVisibleModal(null)}
-        htmlEndpoint="privacy_policy"
-      />
     </ContainerWithHeader>
   );
 };
