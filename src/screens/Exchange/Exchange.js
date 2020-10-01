@@ -161,7 +161,11 @@ class ExchangeScreen extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const { navigation, getExchangeSupportedAssets } = this.props;
+    const {
+      navigation,
+      getExchangeSupportedAssets,
+      hasSeenExchangeIntro,
+    } = this.props;
     const { fromAsset, toAsset } = this.state;
     this._isMounted = true;
     getExchangeSupportedAssets(() => {
@@ -173,6 +177,10 @@ class ExchangeScreen extends React.Component<Props, State> {
       navigation.addListener('didFocus', this.focusInputWithKeyboard),
       navigation.addListener('didBlur', this.blurFromInput),
     ];
+
+    if (!hasSeenExchangeIntro) {
+      this.openExchangeIntroModal();
+    }
   }
 
   componentWillUnmount() {
@@ -425,6 +433,14 @@ class ExchangeScreen extends React.Component<Props, State> {
     this.emptyMessageTimeout = setTimeout(() => this.setState({ showEmptyMessage: true }), 5000);
   };
 
+  openExchangeIntroModal = () => {
+    Modal.open(() => (
+      <ExchangeIntroModal
+        onButtonPress={this.props.updateHasSeenExchangeIntro}
+      />
+    ));
+  }
+
   render() {
     const {
       navigation,
@@ -433,8 +449,6 @@ class ExchangeScreen extends React.Component<Props, State> {
       markNotificationAsSeen,
       accounts,
       smartWalletState,
-      hasSeenExchangeIntro,
-      updateHasSeenExchangeIntro,
     } = this.props;
 
     const {
@@ -464,7 +478,6 @@ class ExchangeScreen extends React.Component<Props, State> {
         }}
           inset={{ bottom: 'never' }}
         >
-          <ExchangeIntroModal isVisible={!hasSeenExchangeIntro} onButtonPress={updateHasSeenExchangeIntro} />
           {(blockView || !!deploymentData.error) && <SWActivationCard />}
           {!blockView &&
           <ScrollView
