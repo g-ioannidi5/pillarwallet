@@ -29,7 +29,7 @@ import { spacing } from 'utils/variables';
 import { getThemeColors, themedColors } from 'utils/themes';
 
 import type { Theme } from 'models/Theme';
-import type { Props as HeaderProps } from 'components/HeaderBlock';
+import type { OwnProps as HeaderProps } from 'components/HeaderBlock';
 
 export type ScrollToProps = {
   x?: number,
@@ -261,7 +261,7 @@ class SlideModal extends React.Component<Props, State> {
             onClose={this.close}
             wrapperStyle={{ backgroundColor: 'transparent' }}
             noHorizonatalPadding={!fullScreen && !noPadding}
-            leftSideFlex={centerTitle ? null : 4}
+            leftSideFlex={centerTitle ? undefined : 4}
             noBack
             forceInsetTop={insetTop ? 'always' : 'never'} // eslint-disable-line i18next/no-literal-string
             {...headerProps}
